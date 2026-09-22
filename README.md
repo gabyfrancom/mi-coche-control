@@ -46,16 +46,14 @@ Si ya creaste el repo vacio en GitHub, copia la URL que te da GitHub y usala en 
 
 ## Desplegarla (gratis) para usarla desde el movil
 
-Cualquiera de estas opciones te da una URL publica en minutos, sin mantener un servidor:
+**GitHub Pages (ya configurado en este repo)**: el workflow `.github/workflows/deploy.yml` compila el proyecto (`npm run build`) y publica el contenido de `dist/` automaticamente cada vez que haces push a `main`. Solo falta activarlo una vez: en el repo de GitHub anda a **Settings → Pages → Build and deployment → Source** y elegi **GitHub Actions** (no "Deploy from a branch"). Despues de eso, cada push a `main` actualiza sola la web en `https://TU-USUARIO.github.io/mi-coche-control/` (mira el progreso en la pestaña **Actions** del repo). El `base: '/mi-coche-control/'` en `vite.config.ts` ya esta puesto para que las rutas funcionen bajo ese subdirectorio — si renombras el repo, actualiza ese valor tambien.
 
-**Vercel**
+**Vercel** (alternativa, sin usar el workflow anterior)
 1. Entra a vercel.com, "Add New Project" y elegi el repo de GitHub.
 2. Framework preset: Vite. Build command: `npm run build`. Output directory: `dist`.
 3. Deploy. Al terminar, abri la URL desde el navegador del celular y usa "Añadir a pantalla de inicio" (Android) o "Compartir > Añadir a pantalla de inicio" (iPhone).
 
-**Netlify**: igual que arriba, con build command `npm run build` y publish directory `dist`.
-
-**GitHub Pages**: agrega `base: '/mi-coche-control/'` en `vite.config.ts` (dentro de `defineConfig`) con el nombre de tu repo, corre `npm run build` y publica el contenido de `dist/` en la rama `gh-pages` (podes usar la accion `peaceiris/actions-gh-pages` o el paquete `gh-pages`).
+**Netlify**: igual que Vercel, con build command `npm run build` y publish directory `dist`.
 
 ## Estructura del proyecto
 

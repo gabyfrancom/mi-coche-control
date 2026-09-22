@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    background: #A855F7;
+    color: white;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@layer components {
+  .field-label {
+    @apply block text-[12px] font-medium text-violet-400 dark:text-violet-300/80 mb-1.5;
+  }
+  .field-input {
+    @apply w-full rounded-xl border border-violet-100 dark:border-violet-800 bg-violet-50 dark:bg-violet-800/60 px-3.5 py-2.5 text-[14px] text-violet-900 dark:text-violet-50 outline-none focus:border-violet-300 dark:focus:border-violet-400 transition-colors;
+  }
+  .btn-primary {
+    @apply w-full rounded-xl bg-violet-300 hover:bg-violet-400 text-white font-semibold text-[14px] py-3 transition-colors;
+  }
+  .btn-secondary {
+    @apply w-full rounded-xl border border-violet-100 dark:border-violet-800 text-violet-500 dark:text-violet-100 font-semibold text-[14px] py-3;
+  }
+  .card {
+    @apply rounded-2xl bg-white dark:bg-violet-800/60 border border-violet-100 dark:border-violet-800/60;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

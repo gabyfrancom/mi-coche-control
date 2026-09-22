@@ -20,6 +20,8 @@ export default function MaintenanceDetail() {
   const [coste, setCoste] = useState(existing?.coste?.toString() ?? '')
   const [taller, setTaller] = useState(existing?.taller ?? '')
   const [notas, setNotas] = useState(existing?.notas ?? '')
+  const [marcaProducto, setMarcaProducto] = useState(existing?.marcaProducto ?? '')
+  const [especificaciones, setEspecificaciones] = useState(existing?.especificaciones ?? '')
 
   if (!type || !activeVehicle) {
     return (
@@ -44,7 +46,9 @@ export default function MaintenanceDetail() {
         kmUltimo: kmUltimo ? Number(kmUltimo) : undefined,
         coste: coste ? Number(coste) : undefined,
         taller: taller || undefined,
-        notas: notas || undefined
+        notas: notas || undefined,
+        marcaProducto: marcaProducto || undefined,
+        especificaciones: especificaciones || undefined
       }
     })
     if (coste) {
@@ -101,6 +105,26 @@ export default function MaintenanceDetail() {
             <div>
               <div className="field-label">Taller</div>
               <input className="field-input" value={taller} onChange={(e) => setTaller(e.target.value)} placeholder="Nombre del taller" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="field-label">Marca del producto</div>
+              <input
+                className="field-input"
+                value={marcaProducto}
+                onChange={(e) => setMarcaProducto(e.target.value)}
+                placeholder="Ej. Castrol, Bosch..."
+              />
+            </div>
+            <div>
+              <div className="field-label">Especificaciones</div>
+              <input
+                className="field-input"
+                value={especificaciones}
+                onChange={(e) => setEspecificaciones(e.target.value)}
+                placeholder="Ej. 5W-30, ref. XYZ"
+              />
             </div>
           </div>
           <div>

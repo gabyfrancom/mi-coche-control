@@ -22,7 +22,14 @@ export function loadData(): AppData | null {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return null
-    return JSON.parse(raw) as AppData
+    const data = JSON.parse(raw) as AppData
+    // Migracion suave: usuarios con datos guardados antes de agregar el
+    // bloqueo de app no tienen estos campos todavia.
+    if (data.settings) {
+      if (data.settings.appLockEnabled === undefined) data.settings.appLockEnabled = false
+      if (data.settings.biometricEnabled === undefined) data.settings.biometricEnabled = false
+    }
+    return data
   } catch {
     return null
   }

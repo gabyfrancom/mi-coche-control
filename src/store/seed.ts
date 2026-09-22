@@ -68,6 +68,13 @@ export function seedData(): AppData {
     roadsideContacts: [
       { vehicleId, telefonoGrua: '900 100 100', telefonoAsistencia: '900 200 200', telefonoSeguro: '900123456', tallerHabitual: 'Taller Hermanos Perez' }
     ],
-    settings: { theme: 'dark', notifPush: true, notifEmail: true, notifSms: false }
+    settings: {
+      theme: 'dark',
+      notifPush: true,
+      notifEmail: true,
+      notifSms: false,
+      appLockEnabled: false,
+      biometricEnabled: false
+    }
   }
 }

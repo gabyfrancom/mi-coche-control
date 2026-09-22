@@ -5,7 +5,7 @@ export type IconName =
   | 'filter' | 'chevronRight' | 'camera' | 'oil' | 'filterIcon' | 'drop' | 'belt'
   | 'spark' | 'brake' | 'suspension' | 'gear' | 'battery' | 'tire' | 'align'
   | 'wiper' | 'ac' | 'check' | 'chip' | 'doc' | 'shield' | 'sun' | 'moon' | 'phone'
-  | 'location' | 'siren' | 'close'
+  | 'location' | 'siren' | 'close' | 'lock' | 'fingerprint' | 'download' | 'file'
 
 const paths: Record<IconName, React.ReactNode> = {
   home: <><path d="M4 11.5 12 4l8 7.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9" strokeLinejoin="round" /></>,
@@ -42,7 +42,11 @@ const paths: Record<IconName, React.ReactNode> = {
   phone: <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2 2C11.6 19.5 4.5 12.4 4.5 5a2 2 0 0 1 2-2Z" strokeLinejoin="round" />,
   location: <><path d="M12 21s7-6.4 7-11.5A7 7 0 0 0 5 9.5C5 14.6 12 21 12 21Z" strokeLinejoin="round" /><circle cx="12" cy="9.5" r="2.4" /></>,
   siren: <><path d="M12 3a5 5 0 0 1 5 5v6H7V8a5 5 0 0 1 5-5Z" strokeLinejoin="round" /><path d="M4 20h16M12 3V1.2" strokeLinecap="round" /></>,
-  close: <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
+  close: <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />,
+  lock: <><rect x="5.5" y="10.5" width="13" height="9.5" rx="1.8" /><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" strokeLinecap="round" /></>,
+  fingerprint: <><path d="M12 3a8 8 0 0 1 8 8v2.5" strokeLinecap="round" /><path d="M12 3a8 8 0 0 0-8 8v2.5" strokeLinecap="round" /><path d="M8.5 21c-.6-1.6-1-3.6-1-6.5a4.5 4.5 0 0 1 9 0c0 1 0 1.8-.1 2.5" strokeLinecap="round" /><path d="M12 21c-1-2-1.5-4-1.5-6.5a1.5 1.5 0 0 1 3 0c0 2 .2 3.6.7 5" strokeLinecap="round" /></>,
+  download: <><path d="M12 4v11" strokeLinecap="round" /><path d="M7.5 11 12 15.5 16.5 11" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 19.5h14" strokeLinecap="round" /></>,
+  file: <><path d="M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z" strokeLinejoin="round" /><path d="M14 3.5V8h4" strokeLinejoin="round" /></>
 }
 
 export function Icon({ name, size = 20, className = '', strokeWidth = 1.7 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {

@@ -46,6 +46,8 @@ export interface MaintenanceRecord {
   taller?: string
   facturaNombre?: string
   notas?: string
+  marcaProducto?: string
+  especificaciones?: string
 }
 
 export interface Expense {
@@ -100,4 +102,9 @@ export interface AppSettings {
   notifPush: boolean
   notifEmail: boolean
   notifSms: boolean
+  appLockEnabled: boolean
+  appLockPinHash?: string
+  appLockPinSalt?: string
+  biometricEnabled: boolean
+  biometricCredentialId?: string
 }

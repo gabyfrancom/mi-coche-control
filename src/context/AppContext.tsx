@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import type {
   AppSettings,
   Expense,
@@ -85,12 +85,18 @@ interface Ctx {
   data: AppData
   dispatch: React.Dispatch<Action>
   activeVehicle: Vehicle | null
+  locked: boolean
+  unlock: () => void
 }
 
 const AppCtx = createContext<Ctx | null>(null)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [data, dispatch] = useReducer(reducer, undefined, () => loadData() ?? seedData())
+  // Bloqueo de sesion: no se persiste, solo dura mientras la pestaña/app
+  // esta abierta. Si el bloqueo esta activado, arranca bloqueada.
+  const [locked, setLocked] = useState(() => data.settings.appLockEnabled)
+  const unlock = () => setLocked(false)
 
   useEffect(() => {
     saveData(data)
@@ -110,7 +116,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [data.vehicles, data.activeVehicleId]
   )
 
-  return <AppCtx.Provider value={{ data, dispatch, activeVehicle }}>{children}</AppCtx.Provider>
+  return <AppCtx.Provider value={{ data, dispatch, activeVehicle, locked, unlock }}>{children}</AppCtx.Provider>
 }
 
 export function useApp() {

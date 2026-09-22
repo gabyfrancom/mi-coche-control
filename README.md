@@ -14,6 +14,10 @@ Todos los datos se guardan en el dispositivo (localStorage) — no hay backend n
 - Seguro del vehiculo (poliza, vencimiento, boton de llamada) y Asistencia en carretera (grua, taller, boton de emergencia, compartir ubicacion).
 - Tema violeta con modo oscuro (por defecto), claro y "seguir sistema".
 - Instalable como PWA (icono, splash, funciona sin conexion tras la primera carga).
+- Bloqueo de la app con PIN (4 a 6 digitos, guardado como hash en el dispositivo) y desbloqueo con huella / Face ID / Windows Hello (WebAuthn) donde el dispositivo lo permita — todo se activa desde Perfil > Seguridad.
+- Exportacion de todos los datos del vehiculo a Excel (.xlsx) y de una ficha tecnica en PDF, desde Perfil > Exportar datos.
+- Campo de marca del producto y especificaciones en cada mantenimiento (aceite, filtros, etc.), ademas de fecha, km, coste y taller.
+- Los recordatorios y estados (verde/amarillo/rojo) usan siempre la fecha del dispositivo donde se abre la app (movil u ordenador).
 
 ## Requisitos
 
@@ -74,3 +78,5 @@ La paleta violeta esta centralizada en `tailwind.config.js` (`colors.violet`, `c
 ## Proximos pasos (cuando quieras el backend completo)
 
 El documento original pedia ademas: API REST en Node.js/NestJS, base de datos PostgreSQL, autenticacion (Google/Microsoft/email), notificaciones push/email/SMS reales, un asistente con IA y extras premium (lectura OBD2 por Bluetooth, multiples vehiculos en la nube, copias de seguridad automaticas). Ese trabajo es independiente de este frontend: cuando quieras avanzar con eso, se arma como un proyecto de servidor aparte y este frontend se conecta a el reemplazando las funciones de `src/store/storage.ts` por llamadas a la API (el resto de la app no cambia, porque toda la logica de pantallas ya usa el context central en `src/context/AppContext.tsx`).
+
+**Pendiente, a proposito**: la **sincronizacion de datos en la nube** (para tener el mismo vehiculo en varios dispositivos o hacer copia de seguridad automatica) todavia no esta implementada — se decidio dejarla para una siguiente etapa, junto con el backend. Por ahora, la forma de sacar una copia de los datos es la exportacion a Excel/PDF (Perfil > Exportar datos).

@@ -22,10 +22,10 @@ Todos los datos se guardan en el dispositivo (localStorage) — no hay backend n
 
 ## Poner en marcha en local
 
-\`\`\`bash
+```bash
 npm install
 npm run dev
-\`\`\`
+```
 
 Abri `http://localhost:5173` en el navegador. Para probarla como se veria en el movil, abri las herramientas de desarrollador y activa la vista responsive, o entra desde el navegador de tu telefono usando la IP de tu red local.
 
@@ -33,14 +33,14 @@ Abri `http://localhost:5173` en el navegador. Para probarla como se veria en el 
 
 Si todavia no tenes el repositorio creado:
 
-\`\`\`bash
+```bash
 git init
 git add .
 git commit -m "Version inicial de Mi Coche Control"
 git branch -M main
 git remote add origin https://github.com/TU-USUARIO/mi-coche-control.git
 git push -u origin main
-\`\`\`
+```
 
 Si ya creaste el repo vacio en GitHub, copia la URL que te da GitHub y usala en el `git remote add origin ...`.
 
@@ -59,7 +59,7 @@ Cualquiera de estas opciones te da una URL publica en minutos, sin mantener un s
 
 ## Estructura del proyecto
 
-\`\`\`
+```
 src/
   components/     Piezas de UI reutilizables (barra inferior, iconos, modales)
   context/        Estado global de la app (React Context + useReducer)
@@ -67,7 +67,7 @@ src/
   store/          Persistencia en localStorage y datos de ejemplo (seed)
   utils/          Calculo de estados (verde/amarillo/rojo), fechas, gastos, tipos de mantenimiento
   types.ts        Modelos de datos (Vehicle, MaintenanceRecord, Expense, etc.)
-\`\`\`
+```
 
 ## Personalizar colores y logo
 

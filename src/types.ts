@@ -48,6 +48,7 @@ export interface MaintenanceRecord {
   notas?: string
   marcaProducto?: string
   especificaciones?: string
+  expenseId?: string
 }
 
 export interface Expense {
@@ -105,6 +106,7 @@ export interface AppSettings {
   appLockEnabled: boolean
   appLockPinHash?: string
   appLockPinSalt?: string
+  appLockPinLength?: number
   biometricEnabled: boolean
   biometricCredentialId?: string
 }

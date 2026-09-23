@@ -52,6 +52,16 @@ Si ya creaste el repo vacio en GitHub, copia la URL que te da GitHub y usala en 
 
 **GitHub Pages (ya configurado en este repo)**: el workflow `.github/workflows/deploy.yml` compila el proyecto (`npm run build`) y publica el contenido de `dist/` automaticamente cada vez que haces push a `main`. Solo falta activarlo una vez: en el repo de GitHub anda a **Settings → Pages → Build and deployment → Source** y elegi **GitHub Actions** (no "Deploy from a branch"). Despues de eso, cada push a `main` actualiza sola la web en `https://TU-USUARIO.github.io/mi-coche-control/` (mira el progreso en la pestaña **Actions** del repo). El `base: '/mi-coche-control/'` en `vite.config.ts` ya esta puesto para que las rutas funcionen bajo ese subdirectorio — si renombras el repo, actualiza ese valor tambien.
 
+**Cloudflare Pages (recomendado: dominio propio y cabeceras de seguridad)**
+1. En dash.cloudflare.com: **Workers & Pages → Create → Pages → Connect to Git** y elegi el repo `mi-coche-control`.
+2. Framework preset: **None**. Build command: `npm run build`. Build output directory: `dist`.
+3. En **Environment variables** agrega `BASE_PATH` = `/` (la app se sirve en la raiz, no en `/mi-coche-control/`).
+4. Save and Deploy. Queda en `https://mi-coche-control.pages.dev` y se actualiza sola con cada push a `main`.
+
+El archivo `public/_headers` pone la Content-Security-Policy y demas cabeceras de seguridad; Cloudflare lo aplica, GitHub Pages lo ignora. GitHub Pages sigue funcionando igual en paralelo (sin `BASE_PATH` usa `/mi-coche-control/`).
+
+**Mudar los datos**: cada direccion web guarda sus propios datos. En la app vieja: Perfil → *Copia de seguridad completa (JSON)*; en la nueva: Perfil → *Restaurar copia de seguridad*. Despues instala la nueva en el movil y borra la vieja de la pantalla de inicio.
+
 **Vercel** (alternativa, sin usar el workflow anterior)
 1. Entra a vercel.com, "Add New Project" y elegi el repo de GitHub.
 2. Framework preset: Vite. Build command: `npm run build`. Output directory: `dist`.

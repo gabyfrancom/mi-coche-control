@@ -19,15 +19,31 @@ export default function RoadsidePage() {
     setEditing(false)
   }
 
+  const [shareMsg, setShareMsg] = useState<string | null>(null)
+
   function share() {
-    if (navigator.share) {
-      navigator.share({ title: 'Mi ubicacion', text: 'Necesito asistencia en carretera. Esta es mi ubicacion actual.' }).catch(() => {})
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const url = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`
-        navigator.clipboard?.writeText(url)
-      })
-    }
+    if (!navigator.geolocation) return setShareMsg('Este dispositivo no permite obtener la ubicación.')
+    setShareMsg('Obteniendo ubicación…')
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords
+        const url = `https://maps.google.com/?q=${latitude.toFixed(6)},${longitude.toFixed(6)}`
+        const text = `Necesito asistencia en carretera. Mi ubicación (±${Math.round(accuracy)} m): ${url}`
+        try {
+          if (navigator.share) await navigator.share({ title: 'Mi ubicación', text, url })
+          else {
+            await navigator.clipboard.writeText(text)
+            setShareMsg('Enlace copiado. Pégalo en WhatsApp o SMS.')
+            return
+          }
+          setShareMsg(null)
+        } catch {
+          setShareMsg(null)
+        }
+      },
+      (err) => setShareMsg(err.code === err.PERMISSION_DENIED ? 'Permiso de ubicación denegado.' : 'No se pudo obtener la ubicación.'),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    )
   }
 
   return (
@@ -71,8 +87,9 @@ export default function RoadsidePage() {
         )}
 
         <button onClick={share} className="btn-secondary flex items-center justify-center gap-2">
-          <Icon name="location" size={16} /> Compartir mi ubicacion
+          <Icon name="location" size={16} /> Compartir mi ubicación
         </button>
+        {shareMsg && <p role="status" className="text-[12px] text-violet-400 dark:text-violet-200 text-center">{shareMsg}</p>}
       </div>
     </div>
   )

@@ -78,3 +78,19 @@ export function seedData(): AppData {
     }
   }
 }
+
+/** Arranque real: sin datos inventados. El ejemplo queda solo como demo opcional. */
+export function emptyData(): AppData {
+  return {
+    vehicles: [],
+    activeVehicleId: null,
+    kmUpdates: [],
+    maintenanceRecords: [],
+    expenses: [],
+    insurances: [],
+    itvRecords: [],
+    tireSets: [],
+    roadsideContacts: [],
+    settings: { theme: 'dark', notifPush: false, notifEmail: false, notifSms: false, appLockEnabled: false, biometricEnabled: false }
+  }
+}

@@ -10,8 +10,8 @@ import type {
   TireSet,
   Vehicle
 } from '../types'
-import { loadData, saveData, type AppData } from '../store/storage'
-import { seedData } from '../store/seed'
+import { KEY, loadData, saveData, requestPersistentStorage, isAppData, type AppData } from '../store/storage'
+import { emptyData } from '../store/seed'
 import { uid } from '../utils/id'
 
 type Action =
@@ -22,12 +22,14 @@ type Action =
   | { type: 'ADD_KM_UPDATE'; update: KmUpdate }
   | { type: 'UPSERT_MAINTENANCE'; record: MaintenanceRecord }
   | { type: 'ADD_EXPENSE'; expense: Expense }
+  | { type: 'UPSERT_EXPENSE'; expense: Expense }
   | { type: 'DELETE_EXPENSE'; id: string }
   | { type: 'UPSERT_INSURANCE'; insurance: Insurance }
   | { type: 'ADD_ITV'; record: ItvRecord }
   | { type: 'UPSERT_TIRES'; tires: TireSet }
   | { type: 'UPSERT_CONTACTS'; contacts: RoadsideContacts }
   | { type: 'UPDATE_SETTINGS'; settings: Partial<AppSettings> }
+  | { type: 'REPLACE_ALL'; data: AppData }
 
 function reducer(state: AppData, action: Action): AppData {
   switch (action.type) {
@@ -58,6 +60,13 @@ function reducer(state: AppData, action: Action): AppData {
     }
     case 'ADD_EXPENSE':
       return { ...state, expenses: [...state.expenses, action.expense] }
+    case 'UPSERT_EXPENSE': {
+      const exists = state.expenses.some((e) => e.id === action.expense.id)
+      return {
+        ...state,
+        expenses: exists ? state.expenses.map((e) => (e.id === action.expense.id ? action.expense : e)) : [...state.expenses, action.expense]
+      }
+    }
     case 'DELETE_EXPENSE':
       return { ...state, expenses: state.expenses.filter((e) => e.id !== action.id) }
     case 'UPSERT_INSURANCE': {
@@ -76,6 +85,8 @@ function reducer(state: AppData, action: Action): AppData {
     }
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.settings } }
+    case 'REPLACE_ALL':
+      return action.data
     default:
       return state
   }
@@ -87,20 +98,51 @@ interface Ctx {
   activeVehicle: Vehicle | null
   locked: boolean
   unlock: () => void
+  storageError: string | null
 }
 
 const AppCtx = createContext<Ctx | null>(null)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [data, dispatch] = useReducer(reducer, undefined, () => loadData() ?? seedData())
+  const [initial] = useState(loadData)
+  const [data, dispatch] = useReducer(reducer, undefined, () => (initial.status === 'ok' ? initial.data : emptyData()))
+  const [storageError, setStorageError] = useState<string | null>(
+    initial.status === 'corrupt' ? 'Los datos guardados estaban dañados. Se apartó una copia; restaura tu última copia de seguridad.' : null
+  )
   // Bloqueo de sesion: no se persiste, solo dura mientras la pestaña/app
   // esta abierta. Si el bloqueo esta activado, arranca bloqueada.
   const [locked, setLocked] = useState(() => data.settings.appLockEnabled)
   const unlock = () => setLocked(false)
 
+  // Re-bloquear al volver del segundo plano si pasó más de 1 minuto.
   useEffect(() => {
-    saveData(data)
+    if (!data.settings.appLockEnabled) return
+    let hiddenAt = 0
+    const onVis = () => {
+      if (document.hidden) hiddenAt = Date.now()
+      else if (hiddenAt && Date.now() - hiddenAt > 60_000) setLocked(true)
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [data.settings.appLockEnabled])
+
+  useEffect(() => {
+    if (!saveData(data)) setStorageError('No se pudo guardar: el almacenamiento está lleno o bloqueado. Exporta una copia de seguridad.')
   }, [data])
+
+  useEffect(() => {
+    requestPersistentStorage()
+    // Otra pestaña guardó cambios: cargarlos en vez de pisarlos.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== KEY || !e.newValue) return
+      try {
+        const next = JSON.parse(e.newValue)
+        if (isAppData(next)) dispatch({ type: 'REPLACE_ALL', data: next })
+      } catch {}
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   useEffect(() => {
     const root = document.documentElement
@@ -116,7 +158,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [data.vehicles, data.activeVehicleId]
   )
 
-  return <AppCtx.Provider value={{ data, dispatch, activeVehicle, locked, unlock }}>{children}</AppCtx.Provider>
+  return <AppCtx.Provider value={{ data, dispatch, activeVehicle, locked, unlock, storageError }}>{children}</AppCtx.Provider>
 }
 
 export function useApp() {

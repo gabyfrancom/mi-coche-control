@@ -6,9 +6,8 @@ import Sheet from '../components/Sheet'
 import { Icon } from '../components/Icon'
 import type { AppSettings } from '../types'
 import { createPinHash } from '../utils/crypto'
+import { exportBackup, readBackup } from '../store/storage'
 import { isBiometricAvailable, registerBiometric } from '../utils/webauthn'
-import { exportToExcel } from '../utils/exportExcel'
-import { exportVehiclePdf } from '../utils/exportPdf'
 
 export default function ProfilePage() {
   const { data, dispatch } = useApp()
@@ -129,14 +128,43 @@ export default function ProfilePage() {
           <div className="card p-1.5 flex flex-col gap-1.5">
             <button
               className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl active:bg-violet-50 dark:active:bg-violet-800"
-              onClick={() => exportToExcel(data, data.activeVehicleId)}
+              onClick={() => exportBackup(data)}
+            >
+              <Icon name="download" size={17} className="text-violet-400" />
+              <span className="text-[13px] font-medium text-violet-800 dark:text-violet-100">Copia de seguridad completa (JSON)</span>
+            </button>
+            <label className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl cursor-pointer active:bg-violet-50 dark:active:bg-violet-800">
+              <Icon name="file" size={17} className="text-violet-400" />
+              <span className="text-[13px] font-medium text-violet-800 dark:text-violet-100">Restaurar copia de seguridad</span>
+              <input
+                type="file"
+                accept="application/json,.json"
+                className="sr-only"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ''
+                  if (!file) return
+                  try {
+                    const restored = await readBackup(file)
+                    if (confirm(`Se reemplazarán los datos actuales por la copia con ${restored.vehicles.length} vehículo(s). ¿Continuar?`)) {
+                      dispatch({ type: 'REPLACE_ALL', data: { ...restored, settings: { ...restored.settings, ...pickLock(data.settings) } } })
+                    }
+                  } catch (err) {
+                    alert(String(err instanceof Error ? err.message : err))
+                  }
+                }}
+              />
+            </label>
+            <button
+              className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl active:bg-violet-50 dark:active:bg-violet-800"
+              onClick={async () => (await import('../utils/exportExcel')).exportToExcel(data, data.activeVehicleId)}
             >
               <Icon name="download" size={17} className="text-violet-400" />
               <span className="text-[13px] font-medium text-violet-800 dark:text-violet-100">Exportar todo a Excel</span>
             </button>
             <button
               className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl active:bg-violet-50 dark:active:bg-violet-800"
-              onClick={() => exportVehiclePdf(data, data.activeVehicleId)}
+              onClick={async () => (await import('../utils/exportPdf')).exportVehiclePdf(data, data.activeVehicleId)}
             >
               <Icon name="file" size={17} className="text-violet-400" />
               <span className="text-[13px] font-medium text-violet-800 dark:text-violet-100">Ficha tecnica en PDF</span>
@@ -164,8 +192,8 @@ export default function ProfilePage() {
       <PinSetupSheet
         open={pinSheetOpen}
         onClose={() => setPinSheetOpen(false)}
-        onSave={(hash, salt) => {
-          dispatch({ type: 'UPDATE_SETTINGS', settings: { appLockEnabled: true, appLockPinHash: hash, appLockPinSalt: salt } })
+        onSave={(hash, salt, length) => {
+          dispatch({ type: 'UPDATE_SETTINGS', settings: { appLockEnabled: true, appLockPinHash: hash, appLockPinSalt: salt, appLockPinLength: length } })
           setPinSheetOpen(false)
         }}
       />
@@ -180,7 +208,7 @@ function PinSetupSheet({
 }: {
   open: boolean
   onClose: () => void
-  onSave: (hash: string, salt: string) => void
+  onSave: (hash: string, salt: string, length: number) => void
 }) {
   const [pin, setPin] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -199,7 +227,7 @@ function PinSetupSheet({
     setPin('')
     setConfirm('')
     setError(null)
-    onSave(hash, salt)
+    onSave(hash, salt, pin.length)
   }
 
   return (
@@ -273,4 +301,10 @@ function ToggleRow({ label, checked, onChange }: { label: string; checked: boole
       </button>
     </label>
   )
+}
+
+/** Al restaurar se conserva el bloqueo configurado en ESTE dispositivo. */
+function pickLock(s: AppSettings): Partial<AppSettings> {
+  const { appLockEnabled, appLockPinHash, appLockPinSalt, appLockPinLength, biometricEnabled, biometricCredentialId } = s
+  return { appLockEnabled, appLockPinHash, appLockPinSalt, appLockPinLength, biometricEnabled, biometricCredentialId }
 }

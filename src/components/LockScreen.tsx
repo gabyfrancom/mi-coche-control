@@ -4,7 +4,6 @@ import { verifyPin } from '../utils/crypto'
 import { verifyBiometric } from '../utils/webauthn'
 import { Icon } from './Icon'
 
-const DOTS = 4
 
 export default function LockScreen() {
   const { data, unlock } = useApp()
@@ -12,6 +11,9 @@ export default function LockScreen() {
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [checking, setChecking] = useState(false)
+  // PIN creados antes de este arreglo no guardan su longitud: se prueba a 4, 5 y 6 cifras.
+  const minLen = settings.appLockPinLength ?? 4
+  const maxLen = settings.appLockPinLength ?? 6
 
   async function tryBiometric() {
     if (!settings.biometricEnabled || !settings.biometricCredentialId) return
@@ -31,23 +33,21 @@ export default function LockScreen() {
   }, [])
 
   async function onDigit(d: string) {
-    if (pin.length >= DOTS || checking) return
+    if (pin.length >= maxLen || checking) return
     const next = pin + d
     setPin(next)
     setError(null)
-    if (next.length === DOTS) {
-      setChecking(true)
-      const ok =
-        settings.appLockPinHash && settings.appLockPinSalt
-          ? await verifyPin(next, settings.appLockPinHash, settings.appLockPinSalt)
-          : false
-      setChecking(false)
-      if (ok) {
-        unlock()
-      } else {
-        setError('PIN incorrecto')
-        setPin('')
-      }
+    if (next.length < minLen) return
+    setChecking(true)
+    const ok =
+      settings.appLockPinHash && settings.appLockPinSalt
+        ? await verifyPin(next, settings.appLockPinHash, settings.appLockPinSalt)
+        : false
+    setChecking(false)
+    if (ok) unlock()
+    else if (next.length >= maxLen) {
+      setError('PIN incorrecto')
+      setPin('')
     }
   }
 
@@ -67,7 +67,7 @@ export default function LockScreen() {
       </div>
 
       <div className="mb-6 flex gap-4">
-        {Array.from({ length: DOTS }).map((_, i) => (
+        {Array.from({ length: maxLen }).map((_, i) => (
           <span
             key={i}
             className={`h-3.5 w-3.5 rounded-full border border-violet-400 ${

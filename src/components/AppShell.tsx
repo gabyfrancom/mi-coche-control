@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { Icon, type IconName } from './Icon'
+import { useApp } from '../context/AppContext'
 
 const tabs: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Inicio', icon: 'home' },
@@ -11,9 +12,13 @@ const tabs: { to: string; label: string; icon: IconName }[] = [
 ]
 
 export default function AppShell() {
+  const { storageError } = useApp()
   return (
     <div className="min-h-dvh flex flex-col items-center bg-violet-50 dark:bg-violet-950">
       <div className="relative flex flex-col w-full max-w-md min-h-dvh bg-violet-50 dark:bg-violet-950 font-body">
+        {storageError && (
+          <div role="alert" className="m-4 mb-0 rounded-xl bg-status-red/15 p-3 text-[13px] text-violet-900 dark:text-violet-50">{storageError}</div>
+        )}
         <main className="flex-1 overflow-y-auto pb-24">
           <Outlet />
         </main>

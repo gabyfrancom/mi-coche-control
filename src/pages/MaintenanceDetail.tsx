@@ -7,8 +7,13 @@ import TopBar from '../components/TopBar'
 import { Icon } from '../components/Icon'
 import { todayIso } from '../utils/date'
 
-export default function MaintenanceDetail() {
+export default function MaintenanceDetailRoute() {
   const { typeId } = useParams<{ typeId: string }>()
+  // key: al cambiar de ficha se desmonta y el formulario se reinicia
+  return <MaintenanceDetail key={typeId} typeId={typeId} />
+}
+
+function MaintenanceDetail({ typeId }: { typeId?: string }) {
   const { data, dispatch, activeVehicle } = useApp()
   const navigate = useNavigate()
   const type = getMaintenanceType(typeId ?? '')
@@ -36,32 +41,30 @@ export default function MaintenanceDetail() {
   const c = statusColor(computed.status)
 
   function guardar() {
+    const fecha = fechaUltimo ? new Date(fechaUltimo + 'T12:00:00').toISOString() : undefined
+    const importe = coste ? Number(coste) : undefined
+    const expenseId = importe ? existing?.expenseId ?? uid() : undefined
     dispatch({
       type: 'UPSERT_MAINTENANCE',
       record: {
+        ...existing, // conserva fechaProxima, kmProxima y cualquier campo futuro
         id: existing?.id ?? uid(),
         vehicleId: activeVehicle!.id,
         typeId: type!.id,
-        fechaUltimo: fechaUltimo ? new Date(fechaUltimo).toISOString() : undefined,
+        fechaUltimo: fecha,
         kmUltimo: kmUltimo ? Number(kmUltimo) : undefined,
-        coste: coste ? Number(coste) : undefined,
+        coste: importe,
         taller: taller || undefined,
         notas: notas || undefined,
         marcaProducto: marcaProducto || undefined,
-        especificaciones: especificaciones || undefined
+        especificaciones: especificaciones || undefined,
+        expenseId
       }
     })
-    if (coste) {
+    if (importe && expenseId) {
       dispatch({
-        type: 'ADD_EXPENSE',
-        expense: {
-          id: uid(),
-          vehicleId: activeVehicle!.id,
-          categoria: 'revision',
-          concepto: type!.nombre,
-          importe: Number(coste),
-          fecha: fechaUltimo ? new Date(fechaUltimo).toISOString() : todayIso()
-        }
+        type: 'UPSERT_EXPENSE', // actualiza el mismo gasto en vez de crear otro
+        expense: { id: expenseId, vehicleId: activeVehicle!.id, categoria: 'revision', concepto: type!.nombre, importe, fecha: fecha ?? new Date().toISOString() }
       })
     }
     navigate(-1)

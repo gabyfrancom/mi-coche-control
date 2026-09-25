@@ -10,7 +10,7 @@ import type {
   TireSet,
   Vehicle
 } from '../types'
-import { KEY, loadData, saveData, requestPersistentStorage, isAppData, type AppData } from '../store/storage'
+import { KEY, loadData, saveData, requestPersistentStorage, normalizeAppData, type AppData } from '../store/storage'
 import { emptyData } from '../store/seed'
 import { uid } from '../utils/id'
 
@@ -136,8 +136,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const onStorage = (e: StorageEvent) => {
       if (e.key !== KEY || !e.newValue) return
       try {
-        const next = JSON.parse(e.newValue)
-        if (isAppData(next)) dispatch({ type: 'REPLACE_ALL', data: next })
+        const next = normalizeAppData(JSON.parse(e.newValue))
+        if (next) dispatch({ type: 'REPLACE_ALL', data: next })
       } catch {}
     }
     window.addEventListener('storage', onStorage)

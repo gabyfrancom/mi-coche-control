@@ -5,7 +5,7 @@ import { getMaintenanceType } from '../utils/maintenanceTypes'
 import { computeMaintenance, statusColor } from '../utils/status'
 import TopBar from '../components/TopBar'
 import { Icon } from '../components/Icon'
-import { todayIso } from '../utils/date'
+import { dateInputToIso, toDateInput } from '../utils/date'
 
 export default function MaintenanceDetailRoute() {
   const { typeId } = useParams<{ typeId: string }>()
@@ -20,7 +20,7 @@ function MaintenanceDetail({ typeId }: { typeId?: string }) {
 
   const existing = data.maintenanceRecords.find((r) => r.vehicleId === activeVehicle?.id && r.typeId === typeId)
 
-  const [fechaUltimo, setFechaUltimo] = useState(existing?.fechaUltimo?.slice(0, 10) ?? '')
+  const [fechaUltimo, setFechaUltimo] = useState(toDateInput(existing?.fechaUltimo))
   const [kmUltimo, setKmUltimo] = useState(existing?.kmUltimo?.toString() ?? '')
   const [coste, setCoste] = useState(existing?.coste?.toString() ?? '')
   const [taller, setTaller] = useState(existing?.taller ?? '')
@@ -41,7 +41,7 @@ function MaintenanceDetail({ typeId }: { typeId?: string }) {
   const c = statusColor(computed.status)
 
   function guardar() {
-    const fecha = fechaUltimo ? new Date(fechaUltimo + 'T12:00:00').toISOString() : undefined
+    const fecha = fechaUltimo ? dateInputToIso(fechaUltimo) : undefined
     const importe = coste ? Number(coste) : undefined
     const expenseId = importe ? existing?.expenseId ?? uid() : undefined
     dispatch({
@@ -66,6 +66,9 @@ function MaintenanceDetail({ typeId }: { typeId?: string }) {
         type: 'UPSERT_EXPENSE', // actualiza el mismo gasto en vez de crear otro
         expense: { id: expenseId, vehicleId: activeVehicle!.id, categoria: 'revision', concepto: type!.nombre, importe, fecha: fecha ?? new Date().toISOString() }
       })
+    } else if (existing?.expenseId) {
+      // Se quito el coste: el gasto vinculado deja de contar en Gastos.
+      dispatch({ type: 'DELETE_EXPENSE', id: existing.expenseId })
     }
     navigate(-1)
   }

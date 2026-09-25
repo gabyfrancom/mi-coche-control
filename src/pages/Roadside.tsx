@@ -11,6 +11,8 @@ export default function RoadsidePage() {
   const [form, setForm] = useState<RoadsideContacts>(
     existing ?? { vehicleId: activeVehicle?.id ?? '', telefonoGrua: '', telefonoAsistencia: '', telefonoSeguro: '', tallerHabitual: '' }
   )
+  // Todos los hooks antes de cualquier return (reglas de React).
+  const [shareMsg, setShareMsg] = useState<string | null>(null)
 
   if (!activeVehicle) return null
 
@@ -18,8 +20,6 @@ export default function RoadsidePage() {
     dispatch({ type: 'UPSERT_CONTACTS', contacts: { ...form, vehicleId: activeVehicle!.id } })
     setEditing(false)
   }
-
-  const [shareMsg, setShareMsg] = useState<string | null>(null)
 
   function share() {
     if (!navigator.geolocation) return setShareMsg('Este dispositivo no permite obtener la ubicación.')

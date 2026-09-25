@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
 import type { AppData } from '../store/storage'
 import { getMaintenanceType } from './maintenanceTypes'
+import { toDateInput } from './date'
 
 /**
  * Exporta todos los datos del vehiculo activo (y generales de la app) a un
@@ -23,7 +24,7 @@ export function exportToExcel(data: AppData, vehicleId: string | null) {
         Combustible: vehicle.combustible,
         'Potencia (CV)': vehicle.potenciaCV,
         'Km actuales': vehicle.kmActuales,
-        'Fecha de compra': vehicle.fechaCompra,
+        'Fecha de compra': toDateInput(vehicle.fechaCompra),
         'Km de compra': vehicle.kmCompra
       }
     ])
@@ -35,9 +36,9 @@ export function exportToExcel(data: AppData, vehicleId: string | null) {
         const type = getMaintenanceType(r.typeId)
         return {
           Mantenimiento: type?.nombre ?? r.typeId,
-          'Ultima fecha': r.fechaUltimo ?? '',
+          'Ultima fecha': toDateInput(r.fechaUltimo),
           'Ultimo km': r.kmUltimo ?? '',
-          'Proxima fecha': r.fechaProxima ?? '',
+          'Proxima fecha': toDateInput(r.fechaProxima),
           'Proximo km': r.kmProxima ?? '',
           Coste: r.coste ?? '',
           Taller: r.taller ?? '',
@@ -50,7 +51,7 @@ export function exportToExcel(data: AppData, vehicleId: string | null) {
 
     const expenses = data.expenses
       .filter((e) => e.vehicleId === vehicle.id)
-      .map((e) => ({ Fecha: e.fecha, Categoria: e.categoria, Concepto: e.concepto, Importe: e.importe }))
+      .map((e) => ({ Fecha: toDateInput(e.fecha), Categoria: e.categoria, Concepto: e.concepto, Importe: e.importe }))
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expenses), 'Gastos')
 
     const insurance = data.insurances.find((i) => i.vehicleId === vehicle.id)
@@ -61,8 +62,8 @@ export function exportToExcel(data: AppData, vehicleId: string | null) {
           {
             Compania: insurance.compania,
             'N° poliza': insurance.numPoliza,
-            'Fecha inicio': insurance.fechaInicio,
-            'Fecha vencimiento': insurance.fechaVencimiento,
+            'Fecha inicio': toDateInput(insurance.fechaInicio),
+            'Fecha vencimiento': toDateInput(insurance.fechaVencimiento),
             Coberturas: insurance.coberturas,
             Franquicia: insurance.franquicia,
             Telefono: insurance.telefono
@@ -74,12 +75,12 @@ export function exportToExcel(data: AppData, vehicleId: string | null) {
 
     const itv = data.itvRecords
       .filter((r) => r.vehicleId === vehicle.id)
-      .map((r) => ({ Fecha: r.fecha, Resultado: r.resultado, 'Proxima fecha': r.proximaFecha, Centro: r.centro }))
+      .map((r) => ({ Fecha: toDateInput(r.fecha), Resultado: r.resultado, 'Proxima fecha': toDateInput(r.proximaFecha), Centro: r.centro }))
     if (itv.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(itv), 'ITV')
 
     const kmUpdates = data.kmUpdates
       .filter((k) => k.vehicleId === vehicle.id)
-      .map((k) => ({ Fecha: k.fecha, Km: k.km }))
+      .map((k) => ({ Fecha: toDateInput(k.fecha), Km: k.km }))
     if (kmUpdates.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kmUpdates), 'Kilometraje')
   }
 

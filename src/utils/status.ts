@@ -1,5 +1,5 @@
 import type { MaintenanceRecord, MaintenanceStatus, MaintenanceTypeDef } from '../types'
-import { addMonths, differenceInCalendarDays } from './date'
+import { addMonths, differenceInCalendarDays, parseDate } from './date'
 
 export interface ComputedMaintenance {
   status: MaintenanceStatus
@@ -34,7 +34,7 @@ export function computeMaintenance(
     (record.fechaUltimo && type.intervaloMeses ? addMonths(record.fechaUltimo, type.intervaloMeses).toISOString() : undefined)
 
   const restanteKm = proximaKm != null ? proximaKm - kmActuales : undefined
-  const restanteDias = proximaFecha ? differenceInCalendarDays(new Date(proximaFecha), hoy) : undefined
+  const restanteDias = proximaFecha ? differenceInCalendarDays(parseDate(proximaFecha), hoy) : undefined
 
   let status: MaintenanceStatus = 'verde'
   const vencidoPorKm = restanteKm != null && restanteKm <= 0
@@ -55,7 +55,7 @@ export function computeMaintenance(
   } else if (proximaKm != null) {
     mensaje = `Proximo a los ${proximaKm.toLocaleString('es-ES')} km`
   } else if (proximaFecha) {
-    mensaje = `Proximo el ${new Date(proximaFecha).toLocaleDateString('es-ES')}`
+    mensaje = `Proximo el ${parseDate(proximaFecha).toLocaleDateString('es-ES')}`
   }
 
   return { status, proximaFecha, proximaKm, restanteKm, restanteDias, mensaje }

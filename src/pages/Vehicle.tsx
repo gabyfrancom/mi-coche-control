@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import TopBar from '../components/TopBar'
 import { Icon } from '../components/Icon'
-import { formatDate } from '../utils/date'
+import { formatDate, toDateInput } from '../utils/date'
 import type { FuelType, Vehicle } from '../types'
 
 const FUELS: { value: FuelType; label: string }[] = [
@@ -99,7 +99,7 @@ export default function VehiclePage() {
                 <input
                   type="date"
                   className="bg-transparent text-[13px] font-semibold text-white border-b border-white/30 mt-0.5"
-                  value={form!.fechaCompra.slice(0, 10)}
+                  value={toDateInput(form!.fechaCompra)}
                   onChange={(e) => set('fechaCompra', e.target.value)}
                 />
               ) : (

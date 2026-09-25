@@ -1,8 +1,9 @@
 import type { Expense } from '../types'
+import { parseDate } from './date'
 
 export function totalThisYear(expenses: Expense[]): number {
   const year = new Date().getFullYear()
-  return expenses.filter((e) => new Date(e.fecha).getFullYear() === year).reduce((sum, e) => sum + e.importe, 0)
+  return expenses.filter((e) => parseDate(e.fecha).getFullYear() === year).reduce((sum, e) => sum + e.importe, 0)
 }
 
 export function costPerKm(expenses: Expense[], kmRecorridos: number): number {
@@ -19,7 +20,7 @@ export function lastMonths(expenses: Expense[], n = 6): { label: string; total: 
     buckets.push({ label: d.toLocaleDateString('es-ES', { month: 'short' }), total: 0, y: d.getFullYear(), m: d.getMonth() })
   }
   for (const e of expenses) {
-    const d = new Date(e.fecha)
+    const d = parseDate(e.fecha)
     const bucket = buckets.find((b) => b.y === d.getFullYear() && b.m === d.getMonth())
     if (bucket) bucket.total += e.importe
   }

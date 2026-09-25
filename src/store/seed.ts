@@ -1,6 +1,6 @@
 import { uid } from '../utils/id'
 import { isoMonthsAgo, todayIso } from '../utils/date'
-import type { AppData } from './storage'
+import { DEFAULT_SETTINGS, type AppData } from './storage'
 
 // Datos de ejemplo para que la app no arranque vacia. El usuario puede
 // editar o borrar el vehiculo de demo desde "Mi vehiculo".
@@ -91,6 +91,6 @@ export function emptyData(): AppData {
     itvRecords: [],
     tireSets: [],
     roadsideContacts: [],
-    settings: { theme: 'dark', notifPush: false, notifEmail: false, notifSms: false, appLockEnabled: false, biometricEnabled: false }
+    settings: { ...DEFAULT_SETTINGS }
   }
 }

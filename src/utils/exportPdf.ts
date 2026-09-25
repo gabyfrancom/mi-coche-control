@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { AppData } from '../store/storage'
 import { getMaintenanceType } from './maintenanceTypes'
+import { formatDate } from './date'
 
 const VIOLET = [124, 58, 237] as [number, number, number]
 
@@ -40,7 +41,7 @@ export function exportVehiclePdf(data: AppData, vehicleId: string | null) {
       ['Matricula', vehicle.matricula, 'Año', String(vehicle.anio)],
       ['VIN', vehicle.vin, 'Combustible', vehicle.combustible],
       ['Potencia', `${vehicle.potenciaCV} CV`, 'Km actuales', vehicle.kmActuales.toLocaleString('es-ES')],
-      ['Fecha de compra', vehicle.fechaCompra, 'Km de compra', vehicle.kmCompra.toLocaleString('es-ES')]
+      ['Fecha de compra', formatDate(vehicle.fechaCompra), 'Km de compra', vehicle.kmCompra.toLocaleString('es-ES')]
     ],
     columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
   })
@@ -59,7 +60,7 @@ export function exportVehiclePdf(data: AppData, vehicleId: string | null) {
       head: [['Mantenimiento', 'Ultima fecha', 'Ultimo km', 'Marca/producto', 'Coste']],
       body: maint.map((r) => [
         getMaintenanceType(r.typeId)?.nombre ?? r.typeId,
-        r.fechaUltimo ?? '-',
+        formatDate(r.fechaUltimo),
         r.kmUltimo ? r.kmUltimo.toLocaleString('es-ES') : '-',
         [r.marcaProducto, r.especificaciones].filter(Boolean).join(' · ') || '-',
         r.coste ? `${r.coste} €` : '-'
@@ -87,7 +88,7 @@ export function exportVehiclePdf(data: AppData, vehicleId: string | null) {
       styles: { fontSize: 9.5, cellPadding: 1 },
       body: [
         ['Compania', insurance.compania, 'Poliza', insurance.numPoliza],
-        ['Vencimiento', insurance.fechaVencimiento, 'Telefono', insurance.telefono]
+        ['Vencimiento', formatDate(insurance.fechaVencimiento), 'Telefono', insurance.telefono]
       ],
       columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
     })

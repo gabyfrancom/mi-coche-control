@@ -5,7 +5,7 @@ import { Icon } from '../components/Icon'
 import Sheet from '../components/Sheet'
 import Fab from '../components/Fab'
 import { CATEGORY_LABELS, lastMonths, totalThisYear } from '../utils/expenses'
-import { formatDate, todayIso } from '../utils/date'
+import { dateInputToIso, formatDate, parseDate, todayIso } from '../utils/date'
 import type { Expense } from '../types'
 
 const CATS = Object.keys(CATEGORY_LABELS) as Expense['categoria'][]
@@ -16,7 +16,7 @@ export default function ExpensesPage() {
   const [categoria, setCategoria] = useState<Expense['categoria']>('combustible')
   const [concepto, setConcepto] = useState('')
   const [importe, setImporte] = useState('')
-  const [fecha, setFecha] = useState(todayIso().slice(0, 10))
+  const [fecha, setFecha] = useState(todayIso())
 
   const gastos = useMemo(
     () => (activeVehicle ? data.expenses.filter((e) => e.vehicleId === activeVehicle.id).sort((a, b) => b.fecha.localeCompare(a.fecha)) : []),
@@ -28,7 +28,7 @@ export default function ExpensesPage() {
   const totalAnio = totalThisYear(gastos)
   const totalMes = gastos
     .filter((g) => {
-      const d = new Date(g.fecha)
+      const d = parseDate(g.fecha)
       const now = new Date()
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
     })
@@ -38,7 +38,7 @@ export default function ExpensesPage() {
     if (!activeVehicle || !concepto || !importe) return
     dispatch({
       type: 'ADD_EXPENSE',
-      expense: { id: uid(), vehicleId: activeVehicle.id, categoria, concepto, importe: Number(importe), fecha: new Date(fecha).toISOString() }
+      expense: { id: uid(), vehicleId: activeVehicle.id, categoria, concepto, importe: Number(importe), fecha: dateInputToIso(fecha) }
     })
     setConcepto('')
     setImporte('')

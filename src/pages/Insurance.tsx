@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useApp, uid } from '../context/AppContext'
 import TopBar from '../components/TopBar'
 import { Icon } from '../components/Icon'
-import { formatDate } from '../utils/date'
+import { differenceInCalendarDays, formatDate, parseDate, toDateInput } from '../utils/date'
 import type { Insurance } from '../types'
 
 export default function InsurancePage() {
@@ -29,7 +29,7 @@ export default function InsurancePage() {
     setEditing(false)
   }
 
-  const diasRestantes = form.fechaVencimiento ? Math.ceil((new Date(form.fechaVencimiento).getTime() - Date.now()) / 86400000) : null
+  const diasRestantes = form.fechaVencimiento ? differenceInCalendarDays(parseDate(form.fechaVencimiento), new Date()) : null
 
   return (
     <div className="flex flex-col gap-4 pb-6">
@@ -70,8 +70,8 @@ export default function InsurancePage() {
             <Input label="Compania" value={form.compania} onChange={(v) => setForm({ ...form, compania: v })} />
             <Input label="Numero de poliza" value={form.numPoliza} onChange={(v) => setForm({ ...form, numPoliza: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Inicio" type="date" value={form.fechaInicio?.slice(0, 10)} onChange={(v) => setForm({ ...form, fechaInicio: v })} />
-              <Input label="Vencimiento" type="date" value={form.fechaVencimiento?.slice(0, 10)} onChange={(v) => setForm({ ...form, fechaVencimiento: v })} />
+              <Input label="Inicio" type="date" value={toDateInput(form.fechaInicio)} onChange={(v) => setForm({ ...form, fechaInicio: v })} />
+              <Input label="Vencimiento" type="date" value={toDateInput(form.fechaVencimiento)} onChange={(v) => setForm({ ...form, fechaVencimiento: v })} />
             </div>
             <Input label="Coberturas" value={form.coberturas} onChange={(v) => setForm({ ...form, coberturas: v })} />
             <div className="grid grid-cols-2 gap-3">
